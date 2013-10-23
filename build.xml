@@ -1,47 +1,79 @@
 <?xml version="1.0"?>
-<project name="springapp" basedir="." default="jar">
-	<property file="build.properties"/>
+<project name="skyhadoop" basedir="." default="jar">
+   <property file="build.properties"/>
+   <property name="src.dir" value="src"/>
+   <property name="test.dir" value="test"/>
+   <property name="build.dir" value="build"/>
+   <property name="classes.dir" value="${build.dir}/classes"/>
+   <property name="report.dir"  value="${build.dir}/junitreport"/>
 
-	<property name="src.dir" value="src"/>
-	<property name="build.dir" value="build"/>
+<path id="application" location="${build.dir}/dist/${ant.project.name}.jar"/>
 
-	<path id="master-classpath">
-		<fileset dir="${hadoop.home}">
-			<include name="*.jar"/>
+<path id="master-classpath">
+	<fileset dir="${hadoop.home}">
+		<include name="*.jar"/>
+	</fileset>
+	<fileset dir="${hadoop.lib}">
+		<include name="*.jar"/>
+	</fileset>
+	<pathelement path="${build.dir}"/>
+</path>
 
-		</fileset>
-		<fileset dir="${hadoop.lib}">
-			<include name="*.jar"/>
+<target name="usage">
+	<echo message=""/>
+	<echo message="${name} build file"/>
+	<echo message="-----------------------------------"/>
+	<echo message=""/>
+	<echo message="Available targets are:"/>
+	<echo message=""/>
+	<echo message="build     --> Build the application"/>
+	<echo message="jar  --> create the jar"/>
+</target>
 
-		</fileset>
+<target name="build" description="Compile main source tree java files">
+	<mkdir dir="${build.dir}/classes"/>
+	<javac destdir="${build.dir}/classes" source="1.6" target="1.6" debug="true" deprecation="false" optimize="false" failonerror="true">
+		<src path="${src.dir}"/>
+		<classpath refid="master-classpath"/>
+	</javac>
+	<javac destdir="${build.dir}/classes" source="1.6" target="1.6" debug="true" deprecation="false" optimize="false" failonerror="true">
+		<src path="${test.dir}"/>
+		<classpath refid="master-classpath"/>
+	</javac>
 
-		<pathelement path="${build.dir}"/>
-	</path>
+</target>
+
+<target name="jar" description="build the jar" depends="build">
+      <mkdir dir="${build.dir}/dist"/>
+      <jar destfile="${build.dir}/dist/${ant.project.name}.jar"  basedir="${build.dir}/classes"/>
+</target>     
+
+<target name="clean">
+    <delete dir="${build.dir}"/>
+</target>
 
 
-	
-	<target name="usage">
-		<echo message=""/>
-		<echo message="${name} build file"/>
-		<echo message="-----------------------------------"/>
-		<echo message=""/>
-		<echo message="Available targets are:"/>
-		<echo message=""/>
-		<echo message="build     --> Build the application"/>
-		<echo message="jar  --> create the jar"/>
-	</target>
+<target name="junit" depends="build">
+     <mkdir dir="${report.dir}"/>
+     <junit printsummary="yes" haltonfailure="no" showoutput="yes">
+        <classpath>
+            <path refid="master-classpath"/>
+            <path refid="application"/>
+        </classpath>
 
-	<target name="build" description="Compile main source tree java files">
-		<mkdir dir="${build.dir}/classes"/>
-		<javac destdir="${build.dir}/classes" source="1.6" target="1.6" debug="true" deprecation="false" optimize="false" failonerror="true">
-			<src path="${src.dir}"/>
-			<classpath refid="master-classpath"/>
-		</javac>
-	</target>
+        <formatter type="xml"/>
 
-	<target name="jar" description="build the jar" depends="build">
-		<mkdir dir="${build.dir}/dist"/>
-		<jar destfile="${build.dir}/../teragen.jar"
-		       basedir="${build.dir}/classes"/>
-	</target>	
+        <batchtest fork="yes" todir="${report.dir}">
+            <fileset dir="${test.dir}" includes="*.java"/>
+        </batchtest>
+    </junit>
+</target>
+
+<target name="test" depends="junit">
+    <junitreport todir="${report.dir}">
+        <fileset dir="${report.dir}" includes="*-*.xml"/>
+        <report todir="${report.dir}"/>
+    </junitreport>
+</target>
+
 </project>

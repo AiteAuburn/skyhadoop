@@ -1,0 +1,16 @@
+import org.junit.* ;
+import static org.junit.Assert.* ;
+
+import skyhadoop.*;
+public class SkyhadoopTest {
+
+   @Test
+   public void test_returnEuro() {
+      assertTrue(1 == 1) ;
+   }
+
+   @Test
+   public void test_roundUp() {
+      assertTrue(2 == 1) ;
+   }
+}

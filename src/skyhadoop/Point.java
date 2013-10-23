@@ -1,8 +1,8 @@
 package skyhadoop;
 //TODO extend it to writable
 public class Point {
-	double []d;//value of dimensions
-	int dim ;// dimentionality
+	public double []d;//value of dimensions
+	public int dim ;// dimentionality
 	public Point(String str){
 		String []temp = str.split(",");
 		dim=temp.length;
@@ -18,7 +18,7 @@ public class Point {
 	//0: not comparable 
 	//1: this dominates P
 	//-1: P dominates this
-	int dominate(Point p){
+	public int dominate(Point p){
 		int greater=0;
 		int lesser=0;
 		for(int i=0;i<dim;i++)

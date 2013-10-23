@@ -70,8 +70,8 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 				System.out.println("STARTED THREAD");
 
 				end = 0;
-				Vector<ByteBuffer> msg = new Vector<>();
-				Vector<Integer> par = new Vector<>();
+				Vector<ByteBuffer> msg = new Vector<ByteBuffer>();
+				Vector<Integer> par = new Vector<Integer>();
 				DatagramChannel channel = DatagramChannel.open();
 				channel.configureBlocking(false);
 				channel.socket().bind(new InetSocketAddress(9900));
@@ -118,7 +118,7 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 						}
 					}
 				}
-				Vector<Double[]> SL = new Vector<>();
+				Vector<Double[]> SL = new Vector<Double[]>();
 				// Configuration conf = new Configuration();
 				FileSystem fs = FileSystem.get(conf);
 				int oo = 0;
