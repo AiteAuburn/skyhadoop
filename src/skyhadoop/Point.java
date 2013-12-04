@@ -1,18 +1,35 @@
 package skyhadoop;
-//TODO extend it to writable
-public class Point {
+
+import org.apache.hadoop.io.Writable;
+
+
+
+public class Point  {
+	public int id;
 	public double []d;//value of dimensions
 	public int dim ;// dimentionality
 	public Point(String str){
-		String []temp = str.split(",");
+		String []temp;
+		//get the id 
+		
+		//temp = str.split(":");
+		//id= Integer.parseInt(temp[0]);		
+		//temp = temp[1].split(",");
+		temp = str.split(",");
 		dim=temp.length;
 		d = new double[dim];
 		for (int i = 0; i < dim; i++) {
 			d[i] = Double.parseDouble(temp[i]);
 		}	
 	}
-	public Point(){
+	public Point( ){
 	
+	}
+	public Point (Point p){
+		
+		this.id=p.id;
+		this.dim=p.dim;
+		d=p.d;
 	}
 	// greater is better
 	//0: not comparable 
