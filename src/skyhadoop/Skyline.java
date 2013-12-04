@@ -8,10 +8,11 @@ import java.util.Vector;
 public class Skyline {
 	//
 	Vector<Point> points;
-	Vector<Point> skylines;
+	public Vector<Point> skylines;
     Vector<Point> otherskylines;
 	public Skyline(Vector<Point> points) {
 		this.points = points;
+		skylines = new Vector<Point>();
 	}
 	// filter points with otherskylines
     public void Filter(){

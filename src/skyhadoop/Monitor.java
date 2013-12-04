@@ -16,12 +16,12 @@ import java.util.Vector;
  * Monitor the skyline execution in the hadoop cluster
  *
  *//*
- class Monitor extends Thread {
+ class Monitor extends Thread {																																																																																																																																																																																																																																																																																																																																														
 		private boolean Status;
 		int k;
-		private boolean kill;
+		private boolean kill;																			
 		public long end;
-		public long start;
+		public long start;																																																																																																																																																																									
 		public String file;
 		private int ps;
 		private ByteBuffer ports;

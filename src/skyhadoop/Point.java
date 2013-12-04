@@ -25,11 +25,23 @@ public class Point  {
 	public Point( ){
 	
 	}
+	@Override
+	public String toString() {
+
+		String s=id + ":";
+		for(int i=0;i<dim;i++){
+			s=s+d[i]+",";
+		}
+		return s;
+	}
 	public Point (Point p){
 		
 		this.id=p.id;
 		this.dim=p.dim;
-		d=p.d;
+		d=new double[dim];
+		for (int i = 0; i < dim; i++) {
+			d[i] = p.d[i];
+		}
 	}
 	// greater is better
 	//0: not comparable 
