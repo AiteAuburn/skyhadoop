@@ -25,6 +25,7 @@ public class Skyline {
 		for (int i = 0; i < points.size(); i++) {
 			Point p = (Point) points.get(i);
 			boolean isskyline = true;
+			
 			for (int j = 0; j < skylines.size(); j++) {
 				Point q = (Point) skylines.get(j);
 				int dom = p.dominate(q);
@@ -35,6 +36,7 @@ public class Skyline {
 					todel.add(q);
 				}
 			}
+			
 			if (todel.size() > 0) {
 				for (Point q : todel)
 					skylines.remove(q);

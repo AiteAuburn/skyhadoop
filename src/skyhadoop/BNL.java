@@ -22,7 +22,7 @@ public class BNL {
 				Reporter reporter) throws IOException {
 			PointWritable p = new PointWritable(value.toString());
 			p.id = (int) key.get();
-			int divison = Partioner.gridpartioner(p);
+			int divison = Partitioner.gridpartioner(p);
 			output.collect(new LongWritable(divison), p);
 		}
 	}
@@ -59,7 +59,7 @@ public class BNL {
 			skyline.Compute();
 
 			for (int i = 0; i < skyline.skylines.size(); i++) {
-				PointWritable s = new PointWritable(points.get(i));
+				PointWritable s = new PointWritable(skyline.skylines.get(i));
 				output.collect(n, new Text(s.toString()));
 			}
 		}
@@ -81,7 +81,7 @@ public class BNL {
 			skyline.Compute();
 
 			for (int i = 0; i < skyline.skylines.size(); i++) {
-				PointWritable s = new PointWritable(points.get(i));
+				PointWritable s = new PointWritable(skyline.skylines.get(i));
 				output.collect(n, s);
 			}
 		}
