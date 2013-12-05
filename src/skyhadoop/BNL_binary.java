@@ -12,7 +12,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
 
 //
-public class BNL {
+public class BNL_binary {
 
 	public static class MapDivision extends MapReduceBase implements
 			Mapper<LongWritable, Text, LongWritable, PointWritable> {
@@ -28,15 +28,15 @@ public class BNL {
 	}
 
 	public static class IdentityMapper extends MapReduceBase implements
-			Mapper<LongWritable, Text, LongWritable, PointWritable> {
+			Mapper<LongWritable, PointWritable, LongWritable, PointWritable> {
 
 		final LongWritable one = new LongWritable(1);
 
-		public void map(LongWritable key, Text value,
+		public void map(LongWritable key, PointWritable value,
 				OutputCollector<LongWritable, PointWritable> output,
 				Reporter reporter) throws IOException {
 
-			output.collect(one, new PointWritable(value.toString()));
+			output.collect(one, value);
 			
 			
 		}
@@ -99,12 +99,12 @@ public class BNL {
 
 		conf.setMapperClass(MapDivision.class);
 		conf.setCombinerClass(SkyReducer_PP.class);
-		conf.setReducerClass(SkyReducer_PT.class);
+		conf.setReducerClass(SkyReducer_PP.class);
 		conf.setNumReduceTasks(1);
 		conf.setNumMapTasks(1);
 
 		conf.setInputFormat(TextInputFormat.class);
-		conf.setOutputFormat(TextOutputFormat.class);
+		conf.setOutputFormat(SequenceFileOutputFormat.class);
 
 		FileInputFormat.setInputPaths(conf, new Path(args[0]));
 		FileOutputFormat.setOutputPath(conf, new Path(args[1] + "/tmp"));
@@ -124,7 +124,7 @@ public class BNL {
 		conf.setNumReduceTasks(1);
 		conf.setNumMapTasks(1);
 
-		conf.setInputFormat(TextInputFormat.class);
+		conf.setInputFormat(SequenceFileInputFormat.class);
 		conf.setOutputFormat(TextOutputFormat.class);
 
 		FileInputFormat.setInputPaths(conf, new Path(args[1] + "/tmp"));

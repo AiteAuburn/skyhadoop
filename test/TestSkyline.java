@@ -45,5 +45,11 @@ public class TestSkyline {
 			System.out.println(p.toString());
 		}
 	}
+   @Test
+   public void test_part(){
+	   Point p=new Point("10,20");
+	   System.out.println(Partioner.gridpartioner(p));
+	   
+   }
 
 }

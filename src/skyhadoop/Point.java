@@ -15,6 +15,13 @@ public class Point  {
 		//temp = str.split(":");
 		//id= Integer.parseInt(temp[0]);		
 		//temp = temp[1].split(",");
+		if(str.contains(" ")){
+			str=(str.split(" "))[1];			
+		}
+		if(str.contains("\t")){
+			str=(str.split("\t"))[1];			
+		}
+		
 		temp = str.split(",");
 		dim=temp.length;
 		d = new double[dim];
@@ -28,10 +35,12 @@ public class Point  {
 	@Override
 	public String toString() {
 
-		String s=id + ":";
-		for(int i=0;i<dim;i++){
+		String s="";
+		int i=0;
+		for(;i<dim-1;i++){
 			s=s+d[i]+",";
 		}
+		s=s+d[i];
 		return s;
 	}
 	public Point (Point p){
