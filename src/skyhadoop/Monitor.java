@@ -25,7 +25,7 @@ import java.util.Vector;
 		public String file;
 		private int ps;
 		private ByteBuffer ports;
-		public static JobConf conf;
+		public   JobConf conf;
 		public void stopThread() {
 			Status = false;
 		}

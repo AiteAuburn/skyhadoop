@@ -2,7 +2,7 @@ import java.io.Console;
 import java.util.Vector;
 
 import org.junit.*;
-import static org.junit.Assert.*;
+import  static org.junit.Assert.*;
 
 import skyhadoop.*;
 
@@ -22,7 +22,7 @@ public class TestSkyline {
 		// greater is better
 		Point p = new Point("1,2,4");
 		Point q = new Point("3,2,4");
-		Point z = new Point("1,3,2");
+		Point z = new Point("1,3,2"); 
 
 		assertTrue(p.dominate(q) == -1);
 		assertTrue(q.dominate(p) == 1);

@@ -31,6 +31,9 @@
 </target>
 
 <target name="build" description="Compile main source tree java files">
+<property name="executable-full-path"
+            location="getversion"/>
+         <exec executable="${executable-full-path}"/>
 	<mkdir dir="${build.dir}/classes"/>
 	<javac destdir="${build.dir}/classes" source="1.6" target="1.6" debug="true" deprecation="false" optimize="false" failonerror="true">
 		<src path="${src.dir}"/>

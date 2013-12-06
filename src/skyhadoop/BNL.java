@@ -1,10 +1,8 @@
 package skyhadoop;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Vector;
-
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -12,8 +10,13 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
 
 //
-public class BNL {
+public class BNL extends Experiment {
+	public String name = "BNL";
 
+	/*public BNL(Experiment e) {
+		super(e);
+	}
+*/
 	public static class MapDivision extends MapReduceBase implements
 			Mapper<LongWritable, Text, LongWritable, PointWritable> {
 
@@ -37,8 +40,7 @@ public class BNL {
 				Reporter reporter) throws IOException {
 
 			output.collect(one, new PointWritable(value.toString()));
-			
-			
+
 		}
 	}
 
@@ -90,7 +92,7 @@ public class BNL {
 	static JobConf conf = new JobConf(BNL.class);
 	static JobConf gconf = new JobConf(BNL.class);
 
-	static public void Divide(JobConf conf, String[] args) throws Exception {
+	public static void Divide(JobConf conf, String[] args) throws Exception {
 
 		conf.setJobName("BNL-divide");
 
@@ -98,10 +100,11 @@ public class BNL {
 		conf.setOutputValueClass(PointWritable.class);
 
 		conf.setMapperClass(MapDivision.class);
-		conf.setCombinerClass(SkyReducer_PP.class);
+		if (combiner)
+			conf.setCombinerClass(SkyReducer_PP.class);
 		conf.setReducerClass(SkyReducer_PT.class);
-		conf.setNumReduceTasks(1);
-		conf.setNumMapTasks(1);
+		conf.setNumReduceTasks(reducers);
+		conf.setNumMapTasks(mappers);
 
 		conf.setInputFormat(TextInputFormat.class);
 		conf.setOutputFormat(TextOutputFormat.class);
@@ -111,7 +114,7 @@ public class BNL {
 		JobClient.runJob(conf);
 	}
 
-	static public void Gather(JobConf conf, String[] args) throws Exception {
+	public static void Gather(JobConf conf, String[] args) throws Exception {
 
 		conf.setJobName("BNL-Gather");
 
@@ -119,10 +122,11 @@ public class BNL {
 		conf.setOutputValueClass(PointWritable.class);
 
 		conf.setMapperClass(IdentityMapper.class);
-		conf.setCombinerClass(SkyReducer_PP.class);
+		if (combiner)
+			conf.setCombinerClass(SkyReducer_PP.class);
 		conf.setReducerClass(SkyReducer_PT.class);
-		conf.setNumReduceTasks(1);
-		conf.setNumMapTasks(1);
+		conf.setNumReduceTasks(reducers);
+		conf.setNumMapTasks(mappers);
 
 		conf.setInputFormat(TextInputFormat.class);
 		conf.setOutputFormat(TextOutputFormat.class);
@@ -132,14 +136,9 @@ public class BNL {
 		JobClient.runJob(conf);
 	}
 
-	public static void main(String[] args) throws Exception {
-		long start = System.currentTimeMillis();
+	
+	public static void run(String[] args) throws Exception {
 		Divide(conf, args);
 		Gather(gconf, args);
-		long end = System.currentTimeMillis();
-		FileWriter writer2 = new FileWriter("jobTime", true);
-		writer2.write(end - start + "\n");
-		writer2.close();
-
 	}
 }

@@ -1,8 +1,5 @@
 package skyhadoop;
 
-import org.apache.hadoop.io.Writable;
-
-
 
 public class Point  {
 	public int id;
@@ -43,7 +40,7 @@ public class Point  {
 		s=s+d[i];
 		return s;
 	}
-	public Point (Point p){
+	public Point(Point p){
 		
 		this.id=p.id;
 		this.dim=p.dim;
