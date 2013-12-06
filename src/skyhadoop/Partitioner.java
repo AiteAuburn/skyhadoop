@@ -5,12 +5,24 @@ public class Partitioner {
 	final static int sizeY = 1000;
 	public static int gridX = 100;
 	public static int gridY = 100;
+	public static String policy = "grid";
 
-	public static int gridpartioner(Point p) {
-		int x = (int) (p.d[0] / gridX);
-		int y = (int) (p.d[1] / gridY);
+	static Partitioner p = null;
 
-		return (int) (x * sizeX / gridX + y);
+	public static void setPartitioner() {
+		if (policy.equals("grid"))
+			p = new GridPartitioner();
+		else if (policy.equals("angle"))
+			p = new AnglePartitioner();
+	}
 
+	int execute(Point p) {
+		return 0;
+	}
+
+	static int getpart(Point b) {
+		if (p == null)
+			setPartitioner();
+		return p.execute(b);
 	}
 }

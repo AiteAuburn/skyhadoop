@@ -25,7 +25,7 @@ public class BNL extends Experiment {
 				Reporter reporter) throws IOException {
 			PointWritable p = new PointWritable(value.toString());
 			p.id = (int) key.get();
-			int divison = Partitioner.gridpartioner(p);
+			int divison = Partitioner.getpart(p);
 			output.collect(new LongWritable(divison), p);
 		}
 	}

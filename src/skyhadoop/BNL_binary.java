@@ -12,6 +12,7 @@ import org.apache.hadoop.mapred.*;
 //
 public class BNL_binary extends Experiment {
 	public String name = "BNL";
+	
 
 	public static class MapDivision extends MapReduceBase implements
 			Mapper<LongWritable, Text, LongWritable, PointWritable> {
@@ -21,7 +22,7 @@ public class BNL_binary extends Experiment {
 				Reporter reporter) throws IOException {
 			PointWritable p = new PointWritable(value.toString());
 			p.id = (int) key.get();
-			int divison = Partitioner.gridpartioner(p);
+			int divison = Partitioner.getpart(p);
 			output.collect(new LongWritable(divison), p);
 		}
 	}
