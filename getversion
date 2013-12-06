@@ -1,0 +1,4 @@
+echo "package skyhadoop;" > Version.java
+echo "public class Version" >> Version.java
+echo  '{ static public final String version="'`git rev-parse HEAD`'";};' >>Version.java
+mv Version.java src/skyhadoop
