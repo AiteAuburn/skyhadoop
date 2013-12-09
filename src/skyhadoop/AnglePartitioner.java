@@ -4,16 +4,19 @@ public class AnglePartitioner extends Partitioner {
 	public static int PARTITION = 8; // no of partitions
 
 	public AnglePartitioner() {
-		// TODO Auto-generated constructor stub
+		PARTITION=Experiment.part_no;
+		System.out.println("**********************************************");
+		System.out.println("**************"+PARTITION+"**************************");
+		System.out.println("**********************************************");
 	}
 
 	@Override
 	public int execute(Point p) {
 		int o = 0;
 
-		double pi = Math.PI / 2;
+		double half_pi = Math.PI / 2;
 		if (p.d[0] != 0) {
-			o = (int) Math.floor(Math.atan(p.d[1] / p.d[0]) / (pi / PARTITION));
+			o = (int) Math.floor(Math.atan(p.d[1] / p.d[0]) / (half_pi / PARTITION));
 			if (o == PARTITION) {
 				o = PARTITION - 1;
 			}
