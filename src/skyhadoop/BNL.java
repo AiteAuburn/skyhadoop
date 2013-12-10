@@ -8,15 +8,15 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
+import org.omg.PortableInterceptor.SUCCESSFUL;
 
 //
 public class BNL extends Experiment {
 	public String name = "BNL";
 
-	/*public BNL(Experiment e) {
-		super(e);
-	}
-*/
+	/*
+	 * public BNL(Experiment e) { super(e); }
+	 */
 	public static class MapDivision extends MapReduceBase implements
 			Mapper<LongWritable, Text, LongWritable, PointWritable> {
 
@@ -73,12 +73,18 @@ public class BNL extends Experiment {
 		public void reduce(LongWritable n, Iterator<PointWritable> values,
 				OutputCollector<LongWritable, PointWritable> output,
 				Reporter reporter) throws IOException {
-
+			if (debug)
+				System.out.println("Combiner");
 			Vector<Point> points = new Vector<Point>();
 			while (values.hasNext()) {
 				Point p = new Point(values.next());
 				points.add(p);
+				if (debug)
+					System.out.println(n.toString() + '(' + p.toString() + ')');
+				;
 			}
+			if (debug)
+				System.out.println("End Combiner");
 			Skyline skyline = new Skyline(points);
 			skyline.Compute();
 
@@ -102,6 +108,7 @@ public class BNL extends Experiment {
 		conf.setMapperClass(MapDivision.class);
 		if (combiner)
 			conf.setCombinerClass(SkyReducer_PP.class);
+
 		conf.setReducerClass(SkyReducer_PT.class);
 		conf.setNumReduceTasks(reducers);
 		conf.setNumMapTasks(mappers);
@@ -111,7 +118,13 @@ public class BNL extends Experiment {
 
 		FileInputFormat.setInputPaths(conf, new Path(args[0]));
 		FileOutputFormat.setOutputPath(conf, new Path(args[1] + "/tmp"));
-		JobClient.runJob(conf);
+
+		try {
+			JobClient.runJob(conf);
+		} catch (Exception e) {
+			success = false;
+
+		}
 	}
 
 	public static void Gather(JobConf conf, String[] args) throws Exception {
@@ -122,8 +135,9 @@ public class BNL extends Experiment {
 		conf.setOutputValueClass(PointWritable.class);
 
 		conf.setMapperClass(IdentityMapper.class);
-		if (combiner)
-			conf.setCombinerClass(SkyReducer_PP.class);
+		/*
+		 * if (combiner) conf.setCombinerClass(SkyReducer_PP.class);
+		 */
 		conf.setReducerClass(SkyReducer_PT.class);
 		conf.setNumReduceTasks(reducers);
 		conf.setNumMapTasks(mappers);
@@ -133,10 +147,13 @@ public class BNL extends Experiment {
 
 		FileInputFormat.setInputPaths(conf, new Path(args[1] + "/tmp"));
 		FileOutputFormat.setOutputPath(conf, new Path(args[1] + "/r"));
-		JobClient.runJob(conf);
-	}
+		try {
+			JobClient.runJob(conf);
+		} catch (Exception e) {
+			success = false;
 
-	
+		}
+	}
 	public static void run(String[] args) throws Exception {
 		Divide(conf, args);
 		Gather(gconf, args);
