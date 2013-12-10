@@ -1,9 +1,11 @@
 package skyhadoop;
 
-public class Point implements Comparable<Point> {
+import java.util.Comparator;
+
+public class Point  {
 	public int id;
 	public double[] d;// value of dimensions
-	public int dim;// dimentionality
+	public int dim;// Dimensionality
 
 	public Point(String str) {
 		String[] temp;
@@ -80,15 +82,5 @@ public class Point implements Comparable<Point> {
 		}
 				return val;
 	}
-
-	@Override
-	public int compareTo(Point o) {
-		double o_value=o.value();
-		double mvalue=value();
-		if(mvalue> o_value){
-		  return -1;
-		}else if(o_value>mvalue)return 1;
-		return 0;
-	}
-
+	
 }

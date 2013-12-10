@@ -154,7 +154,6 @@ public class BNL extends Experiment {
 
 		}
 	}
-
 	public static void run(String[] args) throws Exception {
 		Divide(conf, args);
 		Gather(gconf, args);

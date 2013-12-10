@@ -1,6 +1,7 @@
 package skyhadoop;
 
-public class Partitioner {
+public class Partitioner
+			 {
 	final static int size = 1000;
 	//final static int sizeY = 1000;
 	

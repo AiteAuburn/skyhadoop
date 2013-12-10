@@ -5,13 +5,17 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 
-public class PointWritable extends Point implements Writable {
+public class PointWritable extends Point implements
+		WritableComparable<PointWritable> {
 
 	public PointWritable() {
 	}
-	public PointWritable(PointWritable p){
-	   super((Point)p);
+
+	public PointWritable(PointWritable p) {
+		super((Point) p);
 	}
 
 	public PointWritable(String str) {
@@ -20,6 +24,11 @@ public class PointWritable extends Point implements Writable {
 
 	public PointWritable(Point p) {
 		super(p);
+	}
+
+	@Override
+	public int compareTo(PointWritable o) {
+		return PointCompartor.comp(this, o);
 	}
 
 	@Override
@@ -48,5 +57,17 @@ public class PointWritable extends Point implements Writable {
 			out.writeDouble(d[i]);
 
 	}
-
+	/** A Comparator optimized for PointWritable. */
+	/*
+	 * public static class Comparator extends WritableComparator { public
+	 * Comparator() { super(PointWritable.class); }
+	 * 
+	 * @Override public int compare(byte[] b1, int s1, int l1, byte[] b2, int
+	 * s2, int l2) { double thisValue = readDouble(b1, s1); double thatValue =
+	 * readDouble(b2, s2); return (thisValue < thatValue ? -1 : (thisValue ==
+	 * thatValue ? 0 : 1)); } }
+	 * 
+	 * static { // register this comparator
+	 * WritableComparator.define(PointWritable.class, new Comparator()); }
+	 */
 }

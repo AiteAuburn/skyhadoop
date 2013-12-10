@@ -2,11 +2,13 @@ package skyhadoop;
 
 import java.io.FileWriter;
 
+import org.apache.hadoop.mapred.JobConf;
+
 public class Experiment {
 	public static boolean combiner = false;
 	public static boolean debug = false;
 	public static boolean success = true;
-	public static int part_no = 1;
+	public static int part_no = 10;
 	public static int mappers = 1;
 	public static int reducers = 1;
 	public static int dim=2;
@@ -43,6 +45,7 @@ public class Experiment {
 				else
 					part_no = 100;
 			}
+			
 			if (args[i].startsWith("-pa")) {
 				Partitioner.policy = "angle";
 				if (args[i].startsWith("-pa="))
@@ -67,6 +70,8 @@ public class Experiment {
 			BNL.run(new String[] { input, output });
 		} else if (alg.equals("BNLB")) {
 			BNL_binary.run(new String[] { input, output });
+		} else if (alg.equals("BNL1")) {
+			BNL1.run(new String[] { input, output });
 		}
 
 		end = System.currentTimeMillis();
@@ -78,5 +83,15 @@ public class Experiment {
 			System.out
 					.println("**********************Job failed*******************");
 		}
+	}
+
+	public static void Divide(JobConf conf, String[] args) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void run(String[] args) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 }
