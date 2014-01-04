@@ -1,3 +1,3 @@
 package skyhadoop;
 public class Version
-{ static public final String version="85e846cb1efc63c7ba88aecda079f2309bd01aa6";};
+{ static public final String version="70af15f41e38a06aa9ef527d27c628e8ccccb7e7";};

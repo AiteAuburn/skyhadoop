@@ -138,6 +138,7 @@ public class BNL extends Experiment {
 		/*
 		 * if (combiner) conf.setCombinerClass(SkyReducer_PP.class);
 		 */
+		conf.setCombinerClass(SkyReducer_PP.class);
 		conf.setReducerClass(SkyReducer_PT.class);
 		conf.setNumReduceTasks(reducers);
 		conf.setNumMapTasks(mappers);

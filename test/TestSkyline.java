@@ -48,9 +48,13 @@ public class TestSkyline {
    @Test
    public void test_part(){
 	   Point p=new Point("10,20");
-	   System.out.println(Partioner.gridpartioner(p));
+	   Experiment.dim=2;
+	   Experiment.part_no=2;
+			   
+	   skyhadoop.GridPartitioner grid=new GridPartitioner();
+	   System.out.println(grid.execute(p) );
 	   p=new Point("10,200");
-	   System.out.println(Partioner.gridpartioner(p));
+	   System.out.println(grid.execute(p) );
    }
 
 }
