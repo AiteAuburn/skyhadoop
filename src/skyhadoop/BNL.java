@@ -7,156 +7,174 @@ import java.util.Vector;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.*;
-import org.omg.PortableInterceptor.SUCCESSFUL;
+import org.apache.hadoop.mapreduce.*;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.conf.Configuration;
 
-//
+//hadoop jar skyhadoop.jar skyhadoop.Experiment BNL /home/khalefa/m -m4 
+
 public class BNL extends Experiment {
 	public String name = "BNL";
 
 	/*
 	 * public BNL(Experiment e) { super(e); }
 	 */
-	public static class MapDivision extends MapReduceBase implements
+	public static class MapDivision extends
 			Mapper<LongWritable, Text, LongWritable, PointWritable> {
 
-		public void map(LongWritable key, Text value,
-				OutputCollector<LongWritable, PointWritable> output,
-				Reporter reporter) throws IOException {
+		public void map(LongWritable key, Text value, Context context)
+				throws IOException, InterruptedException {
 			PointWritable p = new PointWritable(value.toString());
 			p.id = (int) key.get();
 			int divison = Partitioner.getpart(p);
-			output.collect(new LongWritable(divison), p);
+			context.write(new LongWritable(divison), p);
+			System.out.println(divison + " "+p.toString());
 		}
 	}
 
-	public static class IdentityMapper extends MapReduceBase implements
+	public static class IdentityMapper extends
 			Mapper<LongWritable, Text, LongWritable, PointWritable> {
 
 		final LongWritable one = new LongWritable(1);
 
-		public void map(LongWritable key, Text value,
-				OutputCollector<LongWritable, PointWritable> output,
-				Reporter reporter) throws IOException {
+		public void map(LongWritable key, Text value, Context context)
+				throws IOException, InterruptedException {
 
-			output.collect(one, new PointWritable(value.toString()));
+			context.write(one, new PointWritable(value.toString()));
 
 		}
 	}
 
 	// Point --> text
-	public static class SkyReducer_PT extends MapReduceBase implements
+	public static class SkyReducer_PT extends
 			Reducer<LongWritable, PointWritable, LongWritable, Text> {
 
 		public void reduce(LongWritable n, Iterator<PointWritable> values,
-				OutputCollector<LongWritable, Text> output, Reporter reporter)
-				throws IOException {
-
+				Context context) throws IOException, InterruptedException {
+System.out.println("Reducer at PT"+n.toString() );
 			Vector<Point> points = new Vector<Point>();
 			while (values.hasNext()) {
 				Point p = new Point(values.next());
 				points.add(p);
+				
+					System.out.println(n.toString() + '(' + p.toString() + ')');
+			
 			}
 			Skyline skyline = new Skyline(points);
 			skyline.Compute();
-
+          System.out.println("Skyline "+ points.size()+" "+skyline.skylines.size());
 			for (int i = 0; i < skyline.skylines.size(); i++) {
 				PointWritable s = new PointWritable(skyline.skylines.get(i));
-				output.collect(n, new Text(s.toString()));
+				context.write(n, new Text(s.toString()));
+				System.out.println(n.toString() + '(' + s.toString() + ')');
 			}
 		}
 	}
 
-	public static class SkyReducer_PP extends MapReduceBase implements
+	public static class SkyReducer_PP extends
 			Reducer<LongWritable, PointWritable, LongWritable, PointWritable> {
 
 		public void reduce(LongWritable n, Iterator<PointWritable> values,
-				OutputCollector<LongWritable, PointWritable> output,
-				Reporter reporter) throws IOException {
-			if (debug)
+				Context context) throws IOException, InterruptedException {
+		
 				System.out.println("Combiner");
 			Vector<Point> points = new Vector<Point>();
 			while (values.hasNext()) {
 				Point p = new Point(values.next());
 				points.add(p);
-				if (debug)
+				
 					System.out.println(n.toString() + '(' + p.toString() + ')');
 				;
 			}
-			if (debug)
+			
 				System.out.println("End Combiner");
 			Skyline skyline = new Skyline(points);
 			skyline.Compute();
 
 			for (int i = 0; i < skyline.skylines.size(); i++) {
 				PointWritable s = new PointWritable(skyline.skylines.get(i));
-				output.collect(n, s);
+				context.write(n, s);
 			}
 		}
 	}
 
-	static JobConf conf = new JobConf(BNL.class);
-	static JobConf gconf = new JobConf(BNL.class);
+	
+	public static void Divide(String[] args) throws Exception {
 
-	public static void Divide(JobConf conf, String[] args) throws Exception {
+		System.out.println("Divide" );
+		Configuration conf = new Configuration();
 
-		conf.setJobName("BNL-divide");
+		@SuppressWarnings("deprecation")
+		Job job = new Job(conf);
 
-		conf.setOutputKeyClass(LongWritable.class);
-		conf.setOutputValueClass(PointWritable.class);
+	
+		job.setJobName("BNL-divide");
+		job.setJarByClass(BNL.class);
+		job.setOutputKeyClass(LongWritable.class);
+		job.setOutputValueClass(PointWritable.class);
 
-		conf.setMapperClass(MapDivision.class);
-		if (combiner)
-			conf.setCombinerClass(SkyReducer_PP.class);
+		job.setMapperClass(MapDivision.class);
+		//if (combiner)
+			//job.setCombinerClass(SkyReducer_PP.class);
 
-		conf.setReducerClass(SkyReducer_PT.class);
-		conf.setNumReduceTasks(reducers);
-		conf.setNumMapTasks(mappers);
+		job.setReducerClass(SkyReducer_PT.class);
+		//job.setNumReduceTasks(reducers);
+		
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
 
-		conf.setInputFormat(TextInputFormat.class);
-		conf.setOutputFormat(TextOutputFormat.class);
-
-		FileInputFormat.setInputPaths(conf, new Path(args[0]));
-		FileOutputFormat.setOutputPath(conf, new Path(args[1] + "/tmp"));
+		FileInputFormat.addInputPath(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1] + "/tmp"));
+		//getSample(job);
 
 		try {
-			JobClient.runJob(conf);
+			job.waitForCompletion(true);
 		} catch (Exception e) {
 			success = false;
-
 		}
 	}
 
-	public static void Gather(JobConf conf, String[] args) throws Exception {
+	public static void Gather(String[] args) throws Exception {
+		Configuration conf = new Configuration();
 
-		conf.setJobName("BNL-Gather");
+		Job job = Job.getInstance(conf);
 
-		conf.setOutputKeyClass(LongWritable.class);
-		conf.setOutputValueClass(PointWritable.class);
+		
+		job.setJobName("BNL-Gather");
 
-		conf.setMapperClass(IdentityMapper.class);
+		job.setOutputKeyClass(LongWritable.class);
+		job.setOutputValueClass(PointWritable.class);
+
+		job.setMapperClass(IdentityMapper.class);
 		/*
 		 * if (combiner) conf.setCombinerClass(SkyReducer_PP.class);
 		 */
-		conf.setCombinerClass(SkyReducer_PP.class);
-		conf.setReducerClass(SkyReducer_PT.class);
-		conf.setNumReduceTasks(reducers);
-		conf.setNumMapTasks(mappers);
+		//job.setCombinerClass(SkyReducer_PP.class);
+		job.setReducerClass(SkyReducer_PT.class);
+		job.setNumReduceTasks(reducers);
+		job.setJarByClass(BNL.class);
+		// job.setNumMapTasks(mappers);
 
-		conf.setInputFormat(TextInputFormat.class);
-		conf.setOutputFormat(TextOutputFormat.class);
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
 
-		FileInputFormat.setInputPaths(conf, new Path(args[1] + "/tmp"));
-		FileOutputFormat.setOutputPath(conf, new Path(args[1] + "/r"));
+		FileInputFormat.addInputPath(job, new Path(args[1] + "/tmp"));
+		FileOutputFormat.setOutputPath(job, new Path(args[1] + "/r"));
 		try {
-			JobClient.runJob(conf);
+			// JobClient.runJob(conf);
+			job.waitForCompletion(true);
 		} catch (Exception e) {
 			success = false;
 
 		}
 	}
+
 	public static void run(String[] args) throws Exception {
-		Divide(conf, args);
-		Gather(gconf, args);
+		System.out.println("Debug"+debug+"\n"+reducers);;
+		Divide(args);
+		Gather(args);
 	}
 }

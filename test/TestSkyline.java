@@ -45,6 +45,32 @@ public class TestSkyline {
 			System.out.println(p.toString());
 		}
 	}
+	
+	@Test
+	public void test_skyline2() {
+		Vector<Point> pnts = new Vector<Point>();
+		System.out.println("Test 2");
+		
+		pnts.add(new Point("840,394"));
+		pnts.add(new Point("783,798"));
+		pnts.add(new Point("911,197"));
+		pnts.add(new Point("335,768"));
+		pnts.add(new Point("277,553"));
+		pnts.add(new Point("477,628"));
+		pnts.add(new Point("364,513"));
+		pnts.add(new Point("952,916"));
+		pnts.add(new Point("635,717"));
+		pnts.add(new Point("141,606"));
+				
+
+		Skyline s = new Skyline(pnts);
+		s.Compute();
+
+		for (int i = 0; i < s.skylines.size(); i++) {
+			Point p = s.skylines.get(i);
+			System.out.println(p.toString());
+		}
+	}
    @Test
    public void test_part(){
 	   Point p=new Point("10,20");

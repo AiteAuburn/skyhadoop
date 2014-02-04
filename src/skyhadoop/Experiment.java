@@ -1,8 +1,13 @@
 package skyhadoop;
 
 import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
 
-import org.apache.hadoop.mapred.JobConf;
+//import org.apache.hadoop.mapred.InputSplit;
+//import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.*;
+import org.apache.hadoop.mapreduce.lib.input.*;
 
 public class Experiment {
 	public static boolean combiner = false;
@@ -21,6 +26,21 @@ public class Experiment {
 	/*
 	 * public void run(String[] args) throws Exception { }
 	 */
+	public static void getSample(JobContext job) {
+		  
+		  
+		   
+		     try {
+		    	 TextInputFormat inFormat = new TextInputFormat();
+		    	 List<InputSplit> splits  = inFormat.getSplits(job);
+				System.out.println(" splits"+ splits.size());
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		     
+	}
 
 	static public String getExperiment() {
 		long time = end - start;
@@ -85,13 +105,13 @@ public class Experiment {
 		}
 	}
 
-	public static void Divide(JobConf conf, String[] args) throws Exception {
-		// TODO Auto-generated method stub
+	public static void Divide(Job job, String[] args) throws Exception {
+		throw new Exception("should not be here");
 		
 	}
 
 	public static void run(String[] args) throws Exception {
-		// TODO Auto-generated method stub
+		throw new Exception("should not be here");
 		
 	}
 }

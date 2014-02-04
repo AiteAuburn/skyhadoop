@@ -49,7 +49,7 @@
 <target name="jar" description="build the jar" depends="build">
       <mkdir dir="${build.dir}/dist"/>
       <jar destfile="${build.dir}/dist/${ant.project.name}.jar"  basedir="${build.dir}/classes"/>
-	<copy file="${build.dir}/dist/${ant.project.name}.jar" todir="/home/khalefa/hadoop/hadoop-1.2.1"/>
+	<copy file="${build.dir}/dist/${ant.project.name}.jar" todir="${deploy.dir}"/>
 </target>     
 
 <target name="clean">
