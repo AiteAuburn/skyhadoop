@@ -1,4 +1,5 @@
 import java.io.Console;
+import java.util.Collections;
 import java.util.Vector;
 
 import org.junit.*;
@@ -24,8 +25,8 @@ public class TestSkyline {
 		Point q = new Point("3,2,4");
 		Point z = new Point("1,3,2"); 
 
-		assertTrue(p.dominate(q) == -1);
-		assertTrue(q.dominate(p) == 1);
+		assertTrue(p.dominate(q) == 1);
+		assertTrue(q.dominate(p) == -1);
 		assertTrue(q.dominate(z) == 0);
 		assertTrue(p.dominate(z) == 0);
 	}
@@ -36,20 +37,25 @@ public class TestSkyline {
 		pnts.add(new Point("1,2"));
 		pnts.add(new Point("2,3"));
 		pnts.add(new Point("4,1"));
-
-		Skyline s = new Skyline(pnts);
+Collections.sort(pnts,new  PointCompartor());
+for (int i = 0; i < pnts.size(); i++) {
+	Point p = pnts.get(i);
+	System.out.println(p.toString());
+}		
+Skyline s = new Skyline(pnts);
 		s.Compute();
 
 		for (int i = 0; i < s.skylines.size(); i++) {
 			Point p = s.skylines.get(i);
-			System.out.println(p.toString());
+			//System.out.println(p.toString());
 		}
+		assertTrue(s.skylines.size()==2);
 	}
 	
 	@Test
 	public void test_skyline2() {
 		Vector<Point> pnts = new Vector<Point>();
-		System.out.println("Test 2");
+		//System.out.println("Test 2");
 		
 		pnts.add(new Point("840,394"));
 		pnts.add(new Point("783,798"));
@@ -68,19 +74,26 @@ public class TestSkyline {
 
 		for (int i = 0; i < s.skylines.size(); i++) {
 			Point p = s.skylines.get(i);
-			System.out.println(p.toString());
+			//System.out.println(p.toString());
 		}
+		assertTrue(s.skylines.size()==5);
 	}
    @Test
    public void test_part(){
 	   Point p=new Point("10,20");
 	   Experiment.dim=2;
-	   Experiment.part_no=2;
+	   Experiment.part_no=4;
+	 
 			   
-	   skyhadoop.GridPartitioner grid=new GridPartitioner();
-	   System.out.println(grid.execute(p) );
-	   p=new Point("10,200");
-	   System.out.println(grid.execute(p) );
+	   skyhadoop.GridPartitioner grid=new GridPartitioner(50);
+	 
+	 assertTrue(0==grid.execute(p) );
+	   p=new Point("30,30");
+	   assertTrue(3==grid.execute(p) );
+	   p=new Point("10,30");
+	   assertTrue(1==grid.execute(p) );
+	   p=new Point("30,10");
+	   assertTrue(2==grid.execute(p) );
    }
 
 }

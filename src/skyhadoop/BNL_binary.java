@@ -12,7 +12,6 @@ import org.apache.hadoop.mapred.*;
 //
 public class BNL_binary extends Experiment {
 	public String name = "BNL";
-	
 
 	public static class MapDivision extends MapReduceBase implements
 			Mapper<LongWritable, Text, LongWritable, PointWritable> {

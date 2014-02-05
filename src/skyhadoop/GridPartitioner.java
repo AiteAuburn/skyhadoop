@@ -9,7 +9,13 @@ public class GridPartitioner extends Partitioner {
 		  grid_d=size/d;
 		//}
 	}
-
+	public GridPartitioner(int s) {
+		size=s;
+		double d=Math.pow(Experiment.part_no, 1.0/Experiment.dim);
+		//for(int i=0;i<Experiment.dim;i++){
+		  grid_d=size/d;
+		//}
+	}
 	@Override
 	public int execute(Point p) {
 		int x = (int) (p.d[0] / grid_d);

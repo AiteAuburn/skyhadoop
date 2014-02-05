@@ -86,7 +86,8 @@ public class BNL extends Experiment {
 		public void reduce(LongWritable n, Iterable<PointWritable> values,
 				Context context) throws IOException, InterruptedException {
 
-			System.out.println("Combiner");
+			if (debug)
+				System.out.println("Combiner");
 			Vector<Point> points = new Vector<Point>();
 			for (PointWritable pp : values) {
 				Point p = new Point(pp);
@@ -110,7 +111,8 @@ public class BNL extends Experiment {
 
 	public static void Divide(String[] args) throws Exception {
 
-		System.out.println("Divide");
+		if (debug)
+			System.out.println("Divide");
 		// JobConf conf = new JobConf(BNL.class);
 		Configuration conf = new Configuration();
 
@@ -121,8 +123,8 @@ public class BNL extends Experiment {
 		job.setOutputValueClass(PointWritable.class);
 
 		job.setMapperClass(MapDivision.class);
-		// if (combiner)
-		// job.setCombinerClass(SkyReducer_PP.class);
+		if (combiner)
+			job.setCombinerClass(SkyReducer_PP.class);
 
 		job.setReducerClass(SkyReducer_PT.class);
 		job.setNumReduceTasks(reducers);
@@ -135,8 +137,11 @@ public class BNL extends Experiment {
 		// getSample(job);
 
 		try {
-			job.waitForCompletion(true);
-		} catch (Exception e) {
+			sample(job);
+			// job.waitForCompletion(true);
+		} catch (Exception ee) {
+
+		} catch (Throwable e) {
 			success = false;
 		}
 
@@ -156,7 +161,7 @@ public class BNL extends Experiment {
 		/*
 		 * if (combiner) conf.setCombinerClass(SkyReducer_PP.class);
 		 */
-		// job.setCombinerClass(SkyReducer_PP.class);
+		job.setCombinerClass(SkyReducer_PP.class);
 		job.setReducerClass(SkyReducer_PT.class);
 		job.setNumReduceTasks(reducers);
 		job.setJarByClass(BNL.class);
@@ -177,7 +182,8 @@ public class BNL extends Experiment {
 	}
 
 	public static void run(String[] args) throws Exception {
-		System.out.println("Debug" + debug + "\n" + reducers);
+		if (debug)
+			System.out.println("Debug" + debug + "\n" + reducers);
 
 		Divide(args);
 		Gather(args);

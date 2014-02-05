@@ -2,7 +2,7 @@ package skyhadoop;
 
 import java.util.Comparator;
 
-public class Point  {
+public class Point {
 	public int id;
 	public double[] d;// value of dimensions
 	public int dim;// Dimensionality
@@ -70,17 +70,28 @@ public class Point  {
 			if (greater > 0 && lesser > 0)
 				return 0;
 		}
-		return greater > 0 ? 1 : -1;
+		return greater > 0 ? -1 : 1;
 	}
-    double val=-1;
+
+	double val = -1;
+
 	public double value() {
-		if(val>=0)return val;
-		
+		if (val >= 0)
+			return val;
+
 		for (int i = 0; i < dim; i++) {
-			if (d[i] == 0)	{val=0; break;}			
-			val +=  Math.log(d[i]);
+			if (d[i] == 0) {
+				val = 0;
+				break;
+			}
+			val += Math.log(d[i]);
 		}
-				return val;
+		return val;
 	}
-	
+
+	public int compareTo(Point right) {
+		return this.dominate(right);
+
+	}
+
 }

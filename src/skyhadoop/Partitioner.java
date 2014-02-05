@@ -1,10 +1,9 @@
 package skyhadoop;
 
-public class Partitioner
-			 {
-	final static int size = 1000;
-	//final static int sizeY = 1000;
-	
+public class Partitioner {
+	 static int size = 1000;
+	// final static int sizeY = 1000;
+
 	public static String policy = "grid";
 
 	static Partitioner p = null;
