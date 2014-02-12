@@ -2,22 +2,24 @@ package skyhadoop;
 
 import java.util.*;
 
-import org.apache.commons.math3.complex.Quaternion;
-
 public class QuadTree {
 	int dim;// dimensoi
 	int threshold;
 	Node root;
-   public  QuadTree(int dim, int threshold){
+	public  QuadTree(int dim, int threshold){
+		this(dim,threshold,Integer.MIN_VALUE, Integer.MAX_VALUE);
+	}
+   public  QuadTree(int dim, int threshold, double low, double high){
 	   this.dim=dim;
 	   this.threshold=threshold;
 	   Point a=new Point(dim);
 	   Point b=new Point(dim);
 	   for(int i=0;i<dim;i++){
-		   a.d[i]=0;
-		   b.d[i]=100;
+		   a.d[i]=low;
+		   b.d[i]=high;
 	   }
 	   	root=new Node(a,b);
+	   	root.id="";
    }
 	class Node {
 		Vector<Point> points;
@@ -148,6 +150,11 @@ public class QuadTree {
 				n.divide();
 			}
 		}
+		@Override
+		public String toString() {
+			
+			return super.toString();
+		}
 	}
 
 	public void Insert(Point p) {
@@ -159,21 +166,12 @@ public class QuadTree {
 	public boolean find(Point p) {
 		if (root == null)
 			return false;
-		
-		
+			
 		Node n = root.findNode(p);
 		for(Point q: n.points)
 			if(q.equals(p))return true;
 		return false;
 	}
 
-	public static void main(String[] args) {
-		QuadTree q = new QuadTree(2,2);
-		Point p = new Point("10,10");
-		q.Insert(p);
-		q.Insert(new Point("10,60"));
-		q.Insert(new Point("60,10"));
-		q.Insert(new Point("60,60"));
-		System.out.print(q.find(new Point("10,60")));
-	}
+	
 }
