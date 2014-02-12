@@ -33,6 +33,11 @@ public class Point {
 
 	}
 
+	public Point(int dim) {
+		this.dim = dim;
+		this.d = new double[dim];
+	}
+
 	@Override
 	public String toString() {
 
@@ -89,9 +94,21 @@ public class Point {
 		return val;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		Point p = (Point) obj;
+		for (int i = 0; i < dim; i++) {
+			if (d[i] != p.d[i])
+				return false;
+		}
+
+		return true;
+	}
+
 	public int compareTo(Point right) {
 		return this.dominate(right);
 
 	}
+	// final Point lowerpoint=new Point();
 
 }

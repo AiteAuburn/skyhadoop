@@ -29,10 +29,13 @@ public class BNL extends Experiment {
 		public void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			PointWritable p = new PointWritable(value.toString());
+			
 			p.id = (int) key.get();
+			
 			int divison = Partitioner.getpart(p);
+			
 			context.write(new LongWritable(divison), p);
-			System.out.println(divison + " " + p.toString());
+			//System.out.println(divison + " " + p.toString());
 		}
 	}
 

@@ -15,30 +15,37 @@ import java.util.List;
 import java.util.Random;
 
 /**
- *
+ * 
  * @author hadoopuser
  */
 public class Sampler {
 
-    public static List reservoirSampling(List<PointWritable> inp, int k)  {
-        List<PointWritable> reservoirList = new ArrayList<PointWritable>(k);   //reservoirList is where our selected lines stored
-        int count = 0;                           // we will use this counter to count the current line numebr while iterating
-        Random ra = new Random();
+	public static List reservoirSampling(List<PointWritable> inp, int k) {
+		List<PointWritable> reservoirList = new ArrayList<PointWritable>(k); // reservoirList
+																				// is
+																				// where
+																				// our
+																				// selected
+																				// lines
+																				// stored
+		int count = 0; // we will use this counter to count the current line
+						// numebr while iterating
+		Random ra = new Random();
 
-        int randomNumber;
-        for (int i = 0; i < inp.size(); i++) {
-            {
-                count++;                                         // increase the line number
-                if (count <= 10) {
-                    reservoirList.add(inp.get(i));
-                } else {
-                    randomNumber = (int) ra.nextInt(count);
-                    if (randomNumber < k) {
-                        reservoirList.set(randomNumber, inp.get(i));
-                    }
-                }
-            }
-        }
-        return null;
-    }
+		int randomNumber;
+		for (int i = 0; i < inp.size(); i++) {
+			{
+				count++; // increase the line number
+				if (count <= 10) {
+					reservoirList.add(inp.get(i));
+				} else {
+					randomNumber = (int) ra.nextInt(count);
+					if (randomNumber < k) {
+						reservoirList.set(randomNumber, inp.get(i));
+					}
+				}
+			}
+		}
+		return null;
+	}
 }
