@@ -16,7 +16,7 @@ import java.util.Random;
 
 /**
  * 
- * @author hadoopuser
+ * @author waleed
  */
 public class Sampler {
 

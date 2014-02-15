@@ -3,31 +3,67 @@ package skyhadoop;
 import java.util.*;
 
 public class QuadTree {
-	int dim;// dimensoi
+	int dim;
 	int threshold;
 	Node root;
-	public  QuadTree(int dim, int threshold){
-		this(dim,threshold,Integer.MIN_VALUE, Integer.MAX_VALUE);
+
+	public QuadTree(int dim, int threshold) {
+		this(dim, threshold, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
-   public  QuadTree(int dim, int threshold, double low, double high){
-	   this.dim=dim;
-	   this.threshold=threshold;
-	   Point a=new Point(dim);
-	   Point b=new Point(dim);
-	   for(int i=0;i<dim;i++){
-		   a.d[i]=low;
-		   b.d[i]=high;
-	   }
-	   	root=new Node(a,b);
-	   	root.id="";
-   }
-	class Node {
+
+	public QuadTree(int dim, int threshold, double low, double high) {
+		this.dim = dim;
+		this.threshold = threshold;
+		Point a = new Point(dim);
+		Point b = new Point(dim);
+		for (int i = 0; i < dim; i++) {
+			a.d[i] = low;
+			b.d[i] = high;
+		}
+		root = new Node(a, b);
+		root.id = "";
+	}
+
+	public class Node {
 		Vector<Point> points;
 		Point lowerpoint;
 		Point upperpoint;
 		Point midpoint;
 		String id;
 		Node[] children;// list of nodes
+		public boolean domianted = false;
+		public int count = 0;
+
+		public int adjust() {
+			if (children == null){
+				count=points.size();
+				return points.size();
+			}
+			int c = 0;
+			for (Node ch : children) {
+				c += ch.adjust();
+			}
+			count = c;
+			return c;
+		}
+
+		@Override
+		public String toString() {
+			String s = id + "[[" + lowerpoint.toString() + "-"
+					+ upperpoint.toString() + "]("+domianted + "|"+count+")\n";
+			if(children!=null)
+				for(Node n : children)
+					s=s+"\t"+n.toString();
+			else if (points!=null){
+				s=s+"{";
+				for(Point p : points)
+					 s=s+p.toString();
+				s=s+"}";
+			}
+					
+			
+			return s;
+		}
 
 		public Node() {
 			Point pl = new Point(dim);
@@ -94,16 +130,20 @@ public class QuadTree {
 			return s;
 		}
 
-		boolean[] getFlags(int i) {
-			boolean[] f = new boolean[dim];
-			int ind = 0;
-			while (i != 0) {
-				if (i % 2 == 1)
-					f[ind] = true;
-				i = i / 2;
-				ind++;
+		public void MarkDominatedNode() {
+			if (children == null)
+				return;
+			if (count == 0)
+				return;
+			Node n = children[0];
+			if (n.count > 0)
+				children[getSize() - 1].domianted = true;
+			for (int i = 0; i < getSize(); i++) {
+				n = children[i];
+				if (n.domianted == true)
+					continue;
+				n.MarkDominatedNode();
 			}
-			return f;
 		}
 
 		public void divide() {
@@ -140,6 +180,7 @@ public class QuadTree {
 
 		public void insert(Point p) {
 			Node n = this;
+
 			if (children != null) {
 				n = findNode(p);
 			}
@@ -150,11 +191,6 @@ public class QuadTree {
 				n.divide();
 			}
 		}
-		@Override
-		public String toString() {
-			
-			return super.toString();
-		}
 	}
 
 	public void Insert(Point p) {
@@ -163,15 +199,36 @@ public class QuadTree {
 		root.insert(p);
 	}
 
+	public String findNode(Point p) {
+
+		if (root == null)
+			return "";
+
+		Node n = root.findNode(p);
+		return n.id;
+	}
+
+	public boolean[] getFlags(int i) {
+		boolean[] f = new boolean[dim];
+		int ind = 0;
+		while (i != 0) {
+			if (i % 2 == 1)
+				f[ind] = true;
+			i = i / 2;
+			ind++;
+		}
+		return f;
+	}
+
 	public boolean find(Point p) {
 		if (root == null)
 			return false;
-			
+
 		Node n = root.findNode(p);
-		for(Point q: n.points)
-			if(q.equals(p))return true;
+		for (Point q : n.points)
+			if (q.equals(p))
+				return true;
 		return false;
 	}
 
-	
 }

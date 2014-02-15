@@ -17,6 +17,14 @@ public class TestSkyline {
 		assertTrue(p.d[1] == 2.3);
 		assertTrue(p.d[2] == 4.1);
 	}
+	@Test
+	public void test_point2() {
+		Point p = new Point("840.0,2.3,4.1");
+		assertTrue(p.dim == 3);
+		assertTrue(p.d[0] == 840);
+		assertTrue(p.d[1] == 2.3);
+		assertTrue(p.d[2] == 4.1);
+	}
 
 	@Test
 	public void test_dominates() {
