@@ -1,7 +1,5 @@
 package skyhadoop;
 
-import java.util.Comparator;
-
 public class Point {
 	public int id;
 	public double[] d;// value of dimensions

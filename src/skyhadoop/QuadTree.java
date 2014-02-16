@@ -105,22 +105,26 @@ public class QuadTree {
 
 		@Override
 		public String toString() {
-			String s = id + "[[" + lowerpoint.toString() + "-"
+			return toString(0);
+		}
+		public String toString(int i){
+			String tt="";
+			for(int j=0;j<i;j++)tt="\t"+tt;
+			
+			String s = tt+id + "[" + lowerpoint.toString() + "-"
 					+ upperpoint.toString() + "](" + domianted + "|" + count
-					+ ")\n";
+					+ ")";
 			if (children != null)
 				for (Node n : children)
-					s = s + "\t" + n.toString();
+					s = s +" \n\t" +tt+ n.toString(i+1);
 			else if (points != null) {
 				s = s + "{";
 				for (Point p : points)
 					s = s + p.toString();
 				s = s + "}";
 			}
-
 			return s;
 		}
-
 		public Node() {
 			Point pl = new Point(dim);
 			Point pu = new Point(dim);

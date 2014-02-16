@@ -1,16 +1,7 @@
 package skyhadoop;
 
 import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
-import java.util.Vector;
-
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.*;
-import org.apache.hadoop.mapreduce.lib.input.*;
-import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
-import org.apache.hadoop.util.StringUtils;
 
 public class Experiment {
 	public static boolean combiner = false;

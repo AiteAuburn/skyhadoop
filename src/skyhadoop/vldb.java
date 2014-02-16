@@ -1,9 +1,15 @@
 package skyhadoop;
 
 import java.net.URI;
+import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Vector;
+
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
+
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.fs.FileSystem;
@@ -25,10 +31,7 @@ public class vldb extends Experiment {
 
 		protected void setup(Context context) throws IOException,
 				InterruptedException {
-
 			try {
-				System.err.println("****************SETUP map");
-
 				Configuration conf = context.getConfiguration();
 				FileSystem fs = FileSystem.getLocal(conf);
 				sq = null;
@@ -45,7 +48,7 @@ public class vldb extends Experiment {
 
 					sq.addpoints(pnts);
 					sq.MarkDominatedNode();
-					// System.out.print(sq);
+					// System.out.println(sq.toString());
 				}
 			} catch (IOException ie) {
 				throw new IllegalArgumentException(
@@ -59,7 +62,7 @@ public class vldb extends Experiment {
 			QuadTree.Node n = sq.getNode(p);
 
 			context.write(new Text(n.id), p);
-			System.out.println(n.id + " " + p.toString());
+			// System.out.println(n.id + " " + p.toString());
 		}
 	}
 
@@ -89,20 +92,40 @@ public class vldb extends Experiment {
 
 				if (debug)
 					System.out.println(n.toString() + '(' + p.toString() + ')');
-
 			}
 			Skyline skyline = new Skyline(points);
 			skyline.Compute();
+
 			if (debug)
 				System.out.println("Skyline " + points.size() + " "
 						+ skyline.skylines.size());
+			Rect r = new Rect();
 			for (int i = 0; i < skyline.skylines.size(); i++) {
-				PointWritable s = new PointWritable(skyline.skylines.get(i));
+				Point p = skyline.skylines.get(i);
+				r.expand(p);
+				PointWritable s = new PointWritable(p);
 				context.write(n, new Text(s.toString()));
 				if (debug)
 					System.out.println(n.toString() + '(' + s.toString() + ')');
 			}
+			if (r.count > 0)
+				Write(context.getConfiguration(), n.toString(), r);
 		}
+	}
+
+	static public void Write(Configuration conf, String n, Rect r) {
+		Path partFile = new Path("r/a" + n + "r");
+		FileSystem outFs;
+		try {
+			outFs = partFile.getFileSystem(conf);
+			DataOutputStream writer = outFs.create(partFile, true);
+			writer.writeChars(r.toString());
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	public static class SkyReducer_PP extends
@@ -139,13 +162,13 @@ public class vldb extends Experiment {
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf);
 		FileSystem fs = FileSystem.get(conf);
-		Path p=new Path(args[1]+"sampled");
-		if(fs.exists(p)==true)
-		fs.delete(p, true);
-		 p=new Path(args[1]);
-		 if(fs.exists(p)==true)
-				fs.delete(p, true);
-				
+		Path p = new Path(args[1] + "sampled");
+		if (fs.exists(p) == true)
+			fs.delete(p, true);
+		p = new Path(args[1]);
+		if (fs.exists(p) == true)
+			fs.delete(p, true);
+
 		job.setJarByClass(BNL.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(PointWritable.class);
@@ -170,11 +193,41 @@ public class vldb extends Experiment {
 		}
 	}
 
+	public static void Contact(Configuration conf) {
+
+		try {
+			Path partFile = new Path("r/");
+			FileSystem fs = FileSystem.get(conf);
+
+			FileStatus[] status = fs.listStatus(partFile);
+			Path[] ps = new Path[status.length];
+			Path outputfile = new Path("C/a.txt");
+			FileSystem outFs;
+			outFs = outputfile.getFileSystem(conf);
+			DataOutputStream writer = outFs.create(outputfile, true);
+			for (int i = 0; i < status.length; i++) {
+				ps[i] = status[i].getPath();
+				System.out.println(ps[i].toString());
+				FSDataInputStream reader = fs.open(ps[i]);
+				String s = reader.readLine();
+				System.out.println(s);
+				writer.writeChars(s);
+				reader.close();
+			}
+			writer.close();
+			// fs.delete(partFile,true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	public static void Gather(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 
 		Job job = Job.getInstance(conf);
-
+		// contact r
+		Contact(conf);
 		job.setJobName("BNL-Gather");
 
 		job.setOutputKeyClass(Text.class);
@@ -192,7 +245,7 @@ public class vldb extends Experiment {
 		FileInputFormat.addInputPath(job, new Path(args[1] + "/tmp"));
 		FileOutputFormat.setOutputPath(job, new Path(args[1] + "/r"));
 		try {
-			
+
 			job.waitForCompletion(true);
 		} catch (Exception e) {
 			success = false;
@@ -208,6 +261,6 @@ public class vldb extends Experiment {
 			System.out.println("Debug" + debug + "\n" + reducers);
 
 		Divide(args);
-		 Gather(args);
+		Gather(args);
 	}
 }

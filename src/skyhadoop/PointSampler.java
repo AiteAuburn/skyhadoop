@@ -21,9 +21,6 @@ import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.apache.hadoop.util.StringUtils;
 import java.io.DataOutputStream;
 import org.apache.hadoop.mapreduce.*;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 public class PointSampler {// implements IndexedSortable {
 	public Vector<Point> records = new Vector<Point>();
@@ -87,7 +84,7 @@ public class PointSampler {// implements IndexedSortable {
 		long t1 = System.currentTimeMillis();
 
 		final PointSampler sampler = new PointSampler();
-		int partitions = job.getNumReduceTasks();
+	//	int partitions = job.getNumReduceTasks();
 		// long sampleSize = 1000;
 		final TextInputFormat inFormat = new TextInputFormat();
 
@@ -174,10 +171,7 @@ public class PointSampler {// implements IndexedSortable {
 	public static void writeSampleFile(final JobContext job, Path partFile,
 			Vector<Point> pnts) throws Throwable {
 		Configuration conf = job.getConfiguration();
-
 		FileSystem outFs = partFile.getFileSystem(conf);
-		System.out.println("*****************" + partFile.toString());
-		System.out.println("*****************" + partFile.toUri());
 		DataOutputStream writer = outFs.create(partFile, true, 64 * 1024,
 				(short) 10, outFs.getDefaultBlockSize(partFile));
 		for (Point p : pnts) {

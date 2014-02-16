@@ -84,7 +84,7 @@ class Monitor extends Thread {
 					if (par.get(i) < ps - 1) {
 						int bytesSent = channel.send(bb, new InetSocketAddress(
 								"127.0.0.1", ports.get(par.get(i) + 1)));
-
+						System.out.println(bytesSent);
 					}
 				}
 			}
@@ -146,7 +146,7 @@ class Monitor extends Thread {
 		out.close();
 	}
 
-	@SuppressWarnings("deprecation")
+	
 	public void run() {
 		try {
 			if (Sharing) {

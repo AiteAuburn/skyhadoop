@@ -5,11 +5,6 @@
  */
 package skyhadoop;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -20,7 +15,7 @@ import java.util.Random;
  */
 public class Sampler {
 
-	public static List reservoirSampling(List<PointWritable> inp, int k) {
+	public static void reservoirSampling(List<PointWritable> inp, int k) {
 		List<PointWritable> reservoirList = new ArrayList<PointWritable>(k); // reservoirList
 																				// is
 																				// where
@@ -29,7 +24,7 @@ public class Sampler {
 																				// lines
 																				// stored
 		int count = 0; // we will use this counter to count the current line
-						// numebr while iterating
+						// number while iterating
 		Random ra = new Random();
 
 		int randomNumber;
@@ -46,6 +41,6 @@ public class Sampler {
 				}
 			}
 		}
-		return null;
+		
 	}
 }
