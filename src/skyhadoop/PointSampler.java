@@ -1,9 +1,14 @@
 package skyhadoop;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -14,6 +19,11 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.apache.hadoop.util.StringUtils;
+import java.io.DataOutputStream;
+import org.apache.hadoop.mapreduce.*;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 public class PointSampler {// implements IndexedSortable {
 	public Vector<Point> records = new Vector<Point>();
@@ -22,6 +32,21 @@ public class PointSampler {// implements IndexedSortable {
 		Skyline s = new Skyline(records);
 		s.Compute();
 		records = s.skylines;
+	}
+
+	static Vector<Point> readSamplePoints(FileSystem fs, Path p,
+			Configuration conf) throws IOException {
+		Vector<Point> v = new Vector<Point>();
+		FSDataInputStream reader = fs.open(p);
+
+		while (reader.available() > 0) {
+			PointWritable pp = new PointWritable();
+			pp.readFields(reader);
+			Point pt = (Point) pp;
+			v.add(pt);
+		}
+		reader.close();
+		return v;
 	}
 
 	/*
@@ -57,7 +82,8 @@ public class PointSampler {// implements IndexedSortable {
 
 	}
 
-	static Vector<Point>  sample(final JobContext job, long sampleSize) throws Throwable {
+	static Vector<Point> sample(final JobContext job, long sampleSize)
+			throws Throwable {
 		long t1 = System.currentTimeMillis();
 
 		final PointSampler sampler = new PointSampler();
@@ -145,9 +171,35 @@ public class PointSampler {// implements IndexedSortable {
 		return sampler.records;
 	}
 
-	/**
-	 * @param args
-	 */
+	public static void writeSampleFile(final JobContext job, Path partFile,
+			Vector<Point> pnts) throws Throwable {
+		Configuration conf = job.getConfiguration();
+
+		FileSystem outFs = partFile.getFileSystem(conf);
+		System.out.println("*****************" + partFile.toString());
+		System.out.println("*****************" + partFile.toUri());
+		DataOutputStream writer = outFs.create(partFile, true, 64 * 1024,
+				(short) 10, outFs.getDefaultBlockSize(partFile));
+		for (Point p : pnts) {
+			PointWritable pp = new PointWritable(p);
+			pp.write(writer);
+		}
+		writer.close();
+	}
+
+	public static void WriteSampleFile(Job job, String output, long sampleSize) {
+		Vector<Point> pnts;
+		try {
+			pnts = sample(job, 1000);
+			Path sample = new Path(output + "sampled");
+			URI uri = new URI(sample.toString() + "#" + output + "sampled");
+			job.addCacheFile(uri);
+			writeSampleFile(job, sample, pnts);
+		} catch (Throwable e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

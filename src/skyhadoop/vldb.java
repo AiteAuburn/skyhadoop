@@ -3,11 +3,9 @@ package skyhadoop;
 import java.net.URI;
 import java.io.IOException;
 import java.util.Vector;
-import java.io.DataOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -22,79 +20,65 @@ public class vldb extends Experiment {
 	public String name = "vldb";
 
 	public static class MapDivision extends
-			Mapper<LongWritable, Text, LongWritable, PointWritable> {
+			Mapper<LongWritable, Text, Text, PointWritable> {
+		SkyQuadTree sq;
 
 		protected void setup(Context context) throws IOException,
 				InterruptedException {
 
 			try {
 				System.err.println("****************SETUP map");
+
 				Configuration conf = context.getConfiguration();
 				FileSystem fs = FileSystem.getLocal(conf);
+				sq = null;
+				for (URI u : context.getCacheFiles()) {
+					System.err.println(u.toString());
 
-				Path partFile = new Path("10_2_sampled");
-				Vector<Point> pnts = readSamplePoints(fs, partFile, conf);
-				Point p = pnts.get(0);
-				int dim = p.dim;
-				int threshold = 2;
-				SkyQuadTree sq = new SkyQuadTree(dim, threshold, 0, 1000);
-				sq.addpoints(pnts);
-				sq.MarkDominatedNode();
-				System.out.print(sq);
+					Path partFile = new Path(u.getPath());
+					Vector<Point> pnts = PointSampler.readSamplePoints(fs,
+							partFile, conf);
+					Point p = pnts.get(0);
+					int dim = p.dim;
+					int threshold = 2;
+					sq = new SkyQuadTree(dim, threshold, 0, 1000);
+
+					sq.addpoints(pnts);
+					sq.MarkDominatedNode();
+					// System.out.print(sq);
+				}
 			} catch (IOException ie) {
 				throw new IllegalArgumentException(
 						"can't read partitions file", ie);
 			}
-
-		}
-
-		static Vector<Point> readSamplePoints(FileSystem fs, Path p,
-				Configuration conf) throws IOException {
-			Vector<Point> v = new Vector<Point>();
-			FSDataInputStream reader = fs.open(p);
-
-			for (int i = 0; i < 4; i++) {
-				PointWritable pp = new PointWritable();
-				pp.readFields(reader);
-				Point pt = (Point) pp;
-				v.add(pt);
-
-			}
-			reader.close();
-			return v;
 		}
 
 		public void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
 			PointWritable p = new PointWritable(value.toString());
+			QuadTree.Node n = sq.getNode(p);
 
-			p.id = (int) key.get();
-
-			int divison = Partitioner.getpart(p);
-
-			context.write(new LongWritable(divison), p);
-			System.out.println(divison + " " + p.toString());
+			context.write(new Text(n.id), p);
+			System.out.println(n.id + " " + p.toString());
 		}
 	}
 
 	public static class IdentityMapper extends
-			Mapper<LongWritable, Text, LongWritable, PointWritable> {
+			Mapper<LongWritable, Text, Text, PointWritable> {
 
-		final LongWritable one = new LongWritable(1);
+		final Text one = new Text("-");
 
 		public void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
-
 			context.write(one, new PointWritable(value.toString()));
-
 		}
 	}
 
 	// Point --> text
 	public static class SkyReducer_PT extends
-			Reducer<LongWritable, PointWritable, LongWritable, Text> {
+			Reducer<Text, PointWritable, Text, Text> {
 		@Override
-		public void reduce(LongWritable n, Iterable<PointWritable> values,
+		public void reduce(Text n, Iterable<PointWritable> values,
 				Context context) throws IOException, InterruptedException {
 			if (debug)
 				System.out.println("Reducer at PT" + n.toString());
@@ -136,7 +120,6 @@ public class vldb extends Experiment {
 
 				if (debug)
 					System.out.println(n.toString() + '(' + p.toString() + ')');
-
 			}
 
 			System.out.println("End Combiner");
@@ -155,9 +138,16 @@ public class vldb extends Experiment {
 
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf);
-
+		FileSystem fs = FileSystem.get(conf);
+		Path p=new Path(args[1]+"sampled");
+		if(fs.exists(p)==true)
+		fs.delete(p, true);
+		 p=new Path(args[1]);
+		 if(fs.exists(p)==true)
+				fs.delete(p, true);
+				
 		job.setJarByClass(BNL.class);
-		job.setOutputKeyClass(LongWritable.class);
+		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(PointWritable.class);
 
 		job.setMapperClass(MapDivision.class);
@@ -171,43 +161,13 @@ public class vldb extends Experiment {
 		FileOutputFormat.setOutputPath(job, new Path(args[1] + "/tmp"));
 
 		try {
-			Vector<Point> pnts = PointSampler.sample(job, 1000);
-			// build the quadtree
-
-			/*
-			 * Point p = pnts.get(0); int dim = p.dim; int threshold = 2;
-			 * SkyQuadTree sq = new SkyQuadTree(dim, threshold, 0, 1000);
-			 * sq.addpoints(pnts); sq.MarkDominatedNode();
-			 */
-			Path sample = new Path(args[1] + "sampled");
-			URI uri = new URI(sample.toString() + "#" + "10_2_sampled");
-			job.addCacheFile(uri);
-
-			writeSampleFile(job, sample, pnts);
-
+			PointSampler.WriteSampleFile(job, args[1], 1000);
 			job.waitForCompletion(true);
 		} catch (Exception ee) {
 
 		} catch (Throwable e) {
 			success = false;
 		}
-
-	}
-
-	public static void writeSampleFile(final JobContext job, Path partFile,
-			Vector<Point> pnts) throws Throwable {
-		Configuration conf = job.getConfiguration();
-
-		FileSystem outFs = partFile.getFileSystem(conf);
-		System.out.println("*****************" + partFile.toString());
-		System.out.println("*****************" + partFile.toUri());
-		DataOutputStream writer = outFs.create(partFile, true, 64 * 1024,
-				(short) 10, outFs.getDefaultBlockSize(partFile));
-		for (Point p : pnts) {
-			PointWritable pp = new PointWritable(p);
-			pp.write(writer);
-		}
-		writer.close();
 	}
 
 	public static void Gather(String[] args) throws Exception {
@@ -217,11 +177,11 @@ public class vldb extends Experiment {
 
 		job.setJobName("BNL-Gather");
 
-		job.setOutputKeyClass(LongWritable.class);
+		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(PointWritable.class);
 
 		job.setMapperClass(IdentityMapper.class);
-		job.setCombinerClass(SkyReducer_PP.class);
+		// job.setCombinerClass(SkyReducer_PP.class);
 		job.setReducerClass(SkyReducer_PT.class);
 		job.setNumReduceTasks(reducers);
 		job.setJarByClass(BNL.class);
@@ -232,11 +192,10 @@ public class vldb extends Experiment {
 		FileInputFormat.addInputPath(job, new Path(args[1] + "/tmp"));
 		FileOutputFormat.setOutputPath(job, new Path(args[1] + "/r"));
 		try {
-			// JobClient.runJob(conf);
+			
 			job.waitForCompletion(true);
 		} catch (Exception e) {
 			success = false;
-
 		}
 	}
 
@@ -249,6 +208,6 @@ public class vldb extends Experiment {
 			System.out.println("Debug" + debug + "\n" + reducers);
 
 		Divide(args);
-		// Gather(args);
+		 Gather(args);
 	}
 }

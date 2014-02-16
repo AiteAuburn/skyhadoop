@@ -24,6 +24,55 @@ public class QuadTree {
 		root.id = "";
 	}
 
+	public Vector<Node> all_children;
+
+	void get_all_children() {
+		all_children = new Vector<Node>();
+		root.getChild(all_children);
+	}
+
+	public void Insert(Point p) {
+		if (root == null)
+			root = new Node();
+		root.insert(p);
+	}
+
+	public String findNode(Point p) {
+
+		if (root == null)
+			return "";
+
+		Node n = root.findNode(p);
+		return n.id;
+	}
+
+	public boolean[] getFlags(int i) {
+		boolean[] f = new boolean[dim];
+		int ind = 0;
+		while (i != 0) {
+			if (i % 2 == 1)
+				f[ind] = true;
+			i = i / 2;
+			ind++;
+		}
+		return f;
+	}
+   public Node getNode(Point p){
+	   Node n = root.findNode(p);
+		return n;
+   }
+	public boolean find(Point p) {
+		if (root == null)
+			return false;
+
+		Node n = root.findNode(p);
+		for (Point q : n.points)
+			if (q.equals(p))
+				return true;
+		return false;
+	}
+	
+
 	public class Node {
 		Vector<Point> points;
 		Point lowerpoint;
@@ -33,10 +82,17 @@ public class QuadTree {
 		Node[] children;// list of nodes
 		public boolean domianted = false;
 		public int count = 0;
+		public void getChild(Vector<Node> all_children) {
+			if (children == null) {
+				all_children.add(this);
+			} else
+				for (Node ch : children)
+					ch.getChild(all_children);
+		}
 
 		public int adjust() {
-			if (children == null){
-				count=points.size();
+			if (children == null) {
+				count = points.size();
 				return points.size();
 			}
 			int c = 0;
@@ -50,18 +106,18 @@ public class QuadTree {
 		@Override
 		public String toString() {
 			String s = id + "[[" + lowerpoint.toString() + "-"
-					+ upperpoint.toString() + "]("+domianted + "|"+count+")\n";
-			if(children!=null)
-				for(Node n : children)
-					s=s+"\t"+n.toString();
-			else if (points!=null){
-				s=s+"{";
-				for(Point p : points)
-					 s=s+p.toString();
-				s=s+"}";
+					+ upperpoint.toString() + "](" + domianted + "|" + count
+					+ ")\n";
+			if (children != null)
+				for (Node n : children)
+					s = s + "\t" + n.toString();
+			else if (points != null) {
+				s = s + "{";
+				for (Point p : points)
+					s = s + p.toString();
+				s = s + "}";
 			}
-					
-			
+
 			return s;
 		}
 
@@ -105,7 +161,7 @@ public class QuadTree {
 		}
 
 		public Node(Point pl, Point pu) {
-			initalize(pl, pu);
+				initalize(pl, pu);
 		}
 
 		int getIndex(Point p) {
@@ -193,42 +249,5 @@ public class QuadTree {
 		}
 	}
 
-	public void Insert(Point p) {
-		if (root == null)
-			root = new Node();
-		root.insert(p);
-	}
-
-	public String findNode(Point p) {
-
-		if (root == null)
-			return "";
-
-		Node n = root.findNode(p);
-		return n.id;
-	}
-
-	public boolean[] getFlags(int i) {
-		boolean[] f = new boolean[dim];
-		int ind = 0;
-		while (i != 0) {
-			if (i % 2 == 1)
-				f[ind] = true;
-			i = i / 2;
-			ind++;
-		}
-		return f;
-	}
-
-	public boolean find(Point p) {
-		if (root == null)
-			return false;
-
-		Node n = root.findNode(p);
-		for (Point q : n.points)
-			if (q.equals(p))
-				return true;
-		return false;
-	}
 
 }

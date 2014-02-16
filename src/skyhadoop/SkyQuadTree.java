@@ -52,6 +52,22 @@ public class SkyQuadTree extends QuadTree {
 		if (root != null) {
 			root.adjust();
 			root.MarkDominatedNode();
+			get_all_children();
+			for (int i = 0; i < all_children.size(); i++) {
+				Node n = all_children.get(i);
+				if (n.domianted == true)
+					continue;
+				if (n.count > 0)
+					continue;
+
+				for (int j = i + 1; j < all_children.size(); j++) {
+					Node m = all_children.get(j);
+					if (m.domianted == true)
+						continue;
+					if (n.midpoint.dominate(m.lowerpoint) == 1)
+						m.domianted = true;
+				}
+			}
 		}
 	}
 
@@ -74,7 +90,7 @@ public class SkyQuadTree extends QuadTree {
 	}
 
 	public static void main(String[] args) {
-		SkyQuadTree q = new SkyQuadTree(2, 2, 0, 100);
+		SkyQuadTree q = new SkyQuadTree(2, 1, 0, 100);
 		Point p = new Point("10,10");
 		q.Insert(p);
 		q.Insert(new Point("15,15"));
@@ -84,9 +100,13 @@ public class SkyQuadTree extends QuadTree {
 
 		q.Insert(new Point("10,60"));
 		q.Insert(new Point("60,10"));
+		q.Insert(new Point("28,60"));
+		q.Insert(new Point("30,60"));
 		q.Insert(new Point("60,60"));
 		q.MarkDominatedNode();
+
 		System.out.print(q.toString());
+		q.get_all_children();
 	}
 
 }
