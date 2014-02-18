@@ -35,11 +35,11 @@
             location="getversion"/>
          <exec executable="${executable-full-path}"/>
 	<mkdir dir="${build.dir}/classes"/>
-	<javac destdir="${build.dir}/classes" source="1.6" target="1.6" debug="true" deprecation="false" optimize="false" failonerror="true">
+	<javac destdir="${build.dir}/classes" source="1.7" target="1.7" debug="true" deprecation="false" optimize="false" failonerror="true">
 		<src path="${src.dir}"/>
 		<classpath refid="master-classpath"/>
 	</javac>
-	<javac destdir="${build.dir}/classes" source="1.6" target="1.6" debug="true" deprecation="false" optimize="false" failonerror="true">
+	<javac destdir="${build.dir}/classes" source="1.7" target="1.7" debug="true" deprecation="false" optimize="false" failonerror="true">
 		<src path="${test.dir}"/>
 		<classpath refid="master-classpath"/>
 	</javac>

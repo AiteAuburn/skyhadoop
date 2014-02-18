@@ -1,10 +1,17 @@
 package skyhadoop;
 
-public class Rect {
+import java.io.Console;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import org.apache.hadoop.io.Writable;
+
+public class Rect implements Writable {
 	Point l;
 	Point u;
-public	int count;
-
+	public int count;
+public int id;
 	public Rect(Point p) {
 		l = p;
 		u = p;
@@ -47,8 +54,29 @@ public	int count;
 
 	@Override
 	public String toString() {
-		if (count>0)
-			return "["+l.toString()+":"+u.toString()+"]";
-		else return "empty";
+		if (count > 0)
+			return "[" + l.toString() + ":" + u.toString() + "]"+count;
+		else
+			return "empty";
+	}
+
+	@Override
+	public void readFields(DataInput in) throws IOException {
+		count = in.readInt();
+		PointWritable a = new PointWritable();
+		PointWritable b = new PointWritable();
+		a.readFields(in);
+		l = (Point) a;
+		b.readFields(in);
+		u = (Point) b;
+	}
+
+	@Override
+	public void write(DataOutput out) throws IOException {
+		out.writeInt(count);
+		PointWritable a = new PointWritable(l);
+		a.write(out);
+		PointWritable b = new PointWritable(u);
+		b.write(out);
 	}
 }

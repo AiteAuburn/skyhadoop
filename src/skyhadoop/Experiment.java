@@ -16,7 +16,8 @@ public class Experiment {
 	public static String alg = "";
 	public static long start;
 	public static long end;
-
+	public static int threshold;
+	public static int sample;
 	/*
 	 * public void run(String[] args) throws Exception { }
 	 */
@@ -25,7 +26,7 @@ public class Experiment {
 		long time = end - start;
 		return Version.version + "\t" + alg + "\t" + input + "\t" + mappers
 				+ "\t" + combiner + "\t" + reducers + "\t" + Partitioner.policy
-				+ "\t" + part_no + "\t" + time + "\n";
+				+ "\t" + part_no + "\t" + threshold + "\t" + sample+ "\t"+ time + "\n";
 	}
 
 	static public void processargs(String args[]) {
@@ -44,7 +45,12 @@ public class Experiment {
 				else
 					part_no = 100;
 			}
-
+			if (args[i].startsWith("-th=")) {
+				threshold = Integer.parseInt(args[i].replace("-th=", ""));
+			}
+			if (args[i].startsWith("-s=")) {
+				sample = Integer.parseInt(args[i].replace("-s=", ""));
+			}
 			if (args[i].startsWith("-pa")) {
 				Partitioner.policy = "angle";
 				if (args[i].startsWith("-pa="))
@@ -71,7 +77,7 @@ public class Experiment {
 			BNL_binary.run(new String[] { input, output });
 		} else if (alg.equals("BNL1")) {
 			BNL1.run(new String[] { input, output });
-		} else if (alg.equals("V")) 
+		} else if (alg.equals("V"))
 			vldb.run(new String[] { input, output });
 
 		end = System.currentTimeMillis();

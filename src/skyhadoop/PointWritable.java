@@ -38,7 +38,6 @@ public class PointWritable extends Point implements
 		d = new double[dim];
 		for (int i = 0; i < dim; i++)
 			d[i] = in.readDouble();
-
 	}
 
 	@Override

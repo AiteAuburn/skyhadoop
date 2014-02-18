@@ -31,8 +31,8 @@ public class PointSampler {// implements IndexedSortable {
 		records = s.skylines;
 	}
 
-	static Vector<Point> readSamplePoints(FileSystem fs, Path p,
-			Configuration conf) throws IOException {
+	static Vector<Point> readSamplePoints(FileSystem fs, Path p
+			) throws IOException {
 		Vector<Point> v = new Vector<Point>();
 		FSDataInputStream reader = fs.open(p);
 
@@ -164,7 +164,7 @@ public class PointSampler {// implements IndexedSortable {
 		 * for(Point p :sampler.records){ // System.out.println(p.toString());
 		 * // }
 		 */
-		System.out.println("Computing parititions took " + (t3 - t2) + "ms");
+		System.out.println("Computing"+sampleSize+" sampling took " + (t3 - t2) + "ms");
 		return sampler.records;
 	}
 
@@ -184,20 +184,20 @@ public class PointSampler {// implements IndexedSortable {
 	public static void WriteSampleFile(Job job, String output, long sampleSize) {
 		Vector<Point> pnts;
 		try {
-			pnts = sample(job, 1000);
+			
+			pnts = sample(job, job.getConfiguration().getInt("sample", 1000));
 			Path sample = new Path(output + "sampled");
 			URI uri = new URI(sample.toString() + "#" + output + "sampled");
 			job.addCacheFile(uri);
 			writeSampleFile(job, sample, pnts);
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		
 	}
 
 }
