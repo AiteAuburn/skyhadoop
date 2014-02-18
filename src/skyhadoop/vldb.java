@@ -193,9 +193,9 @@ public class vldb extends Experiment {
 	}
 
 	public static class SkyReducer_PP extends
-			Reducer<LongWritable, PointWritable, LongWritable, PointWritable> {
+			Reducer<Text, PointWritable, Text, PointWritable> {
 		@Override
-		public void reduce(LongWritable n, Iterable<PointWritable> values,
+		public void reduce(Text n, Iterable<PointWritable> values,
 				Context context) throws IOException, InterruptedException {
 
 			if (debug)
@@ -240,6 +240,8 @@ public class vldb extends Experiment {
 		job.setOutputValueClass(PointWritable.class);
 
 		job.setMapperClass(MapDivision.class);
+		if (combiner)
+			job.setCombinerClass(SkyReducer_PP.class);
 		job.setReducerClass(SkyReducer_PT.class);
 		job.setNumReduceTasks(reducers);
 
@@ -306,7 +308,8 @@ public class vldb extends Experiment {
 		job.setOutputValueClass(PointWritable.class);
 
 		job.setMapperClass(vldbmapper.class);
-		// job.setCombinerClass(SkyReducer_PP.class);
+		if (combiner)
+			job.setCombinerClass(SkyReducer_PP.class);
 		job.setReducerClass(SkyReducer_PT.class);
 		job.setNumReduceTasks(reducers);
 		job.setJarByClass(BNL.class);

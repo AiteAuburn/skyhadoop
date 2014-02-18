@@ -16,8 +16,8 @@ public class Experiment {
 	public static String alg = "";
 	public static long start;
 	public static long end;
-	public static int threshold;
-	public static int sample;
+	public static int threshold=5;
+	public static int sample=1000;
 	/*
 	 * public void run(String[] args) throws Exception { }
 	 */
